@@ -15,6 +15,21 @@ DFA Minimization Project
    ```sh
    git clone <repository-url>
    cd <repository-directory>
+
+## Algorithm Explanation
+The algorithm implemented in this project minimizes a Deterministic Finite Automaton (DFA) using the following steps:
+
+1. **Mark Pairs of States:**
+Initialize a 2D boolean array distinguishable to keep track of distinguishable state pairs.
+Mark pairs where one state is a final state and the other is not.
+
+2. **Mark Pairs Based on Transitions:**
+Iteratively mark pairs of states as distinguishable if their transitions lead to distinguishable states.
+Continue this process until no more changes occur.
+
+3. **Collect Equivalent States:**
+After marking distinguishable pairs, collect pairs of states that are not distinguishable.
+These pairs represent equivalent states in the minimized DFA.
    
 The program reads the number of test cases, the number of states, the alphabet, the final states, and the transition table from the input. It then applies the minimization algorithm and prints the equivalent state pairs for each test case.
 
