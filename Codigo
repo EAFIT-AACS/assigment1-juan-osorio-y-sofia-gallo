@@ -1,0 +1,86 @@
+import java.util.Scanner;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ArrayList;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int testCases = Integer.parseInt(scanner.nextLine());
+        
+        for (int t = 0; t < testCases; t++) {
+            int numStates = Integer.parseInt(scanner.nextLine());
+            String[] alphabet = scanner.nextLine().split(" ");
+            Set<Integer> finalStates = new HashSet<>();
+            
+            // Leer los estados finales
+            for (String s : scanner.nextLine().split(" ")) {
+                if (!s.isEmpty()) finalStates.add(Integer.parseInt(s));
+            }
+            
+            // Leer la tabla de transiciones
+            int[][] transitionTable = new int[numStates][alphabet.length];
+            for (int i = 0; i < numStates; i++) {
+                String[] transitions = scanner.nextLine().split(" ");
+                for (int j = 0; j < alphabet.length; j++) {
+                    transitionTable[i][j] = Integer.parseInt(transitions[j]);
+                }
+            }
+            
+            // Minimizar el DFA
+            List<String> equivalentPairs = minimizeDFA(numStates, alphabet, finalStates, transitionTable);
+            if (!equivalentPairs.isEmpty()) {
+                System.out.println("(" + String.join(") (", equivalentPairs) + ")");
+            } else {
+                System.out.println(); // Imprime una línea vacía si no hay pares equivalentes
+            }
+        }
+        scanner.close();
+    }
+    
+    public static List<String> minimizeDFA(int numStates, String[] alphabet, Set<Integer> finalStates, int[][] transitionTable) {
+        boolean[][] distinguishable = new boolean[numStates][numStates];
+        
+        // Paso 1: Marcar pares donde uno es final y otro no
+        for (int i = 0; i < numStates; i++) {
+            for (int j = i + 1; j < numStates; j++) {
+                if (finalStates.contains(i) != finalStates.contains(j)) {
+                    distinguishable[i][j] = true;
+                }
+            }
+        }
+        
+        // Paso 2: Marcar pares según transiciones
+        boolean changed;
+        do {
+            changed = false;
+            for (int i = 0; i < numStates; i++) {
+                for (int j = i + 1; j < numStates; j++) {
+                    if (!distinguishable[i][j]) {
+                        for (int k = 0; k < alphabet.length; k++) {
+                            int nextI = transitionTable[i][k];
+                            int nextJ = transitionTable[j][k];
+                            if (distinguishable[Math.min(nextI, nextJ)][Math.max(nextI, nextJ)]) {
+                                distinguishable[i][j] = true;
+                                changed = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        } while (changed);
+        
+        // Paso 3: Recoger estados equivalentes
+        List<String> equivalentPairs = new ArrayList<>();
+        for (int i = 0; i < numStates; i++) {
+            for (int j = i + 1; j < numStates; j++) {
+                if (!distinguishable[i][j]) {
+                    equivalentPairs.add(i + ", " + j);
+                }
+            }
+        }
+        return equivalentPairs;
+    }
+}
